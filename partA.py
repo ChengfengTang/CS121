@@ -3,15 +3,16 @@ import sys
 from typing import List, Dict
 
 
-# The run time complexity is O(n) because it will only iterate through the text once and split the text
-# into alphanumeric subsets. And the other trivial operations are O(1)
+# The run time complexity is O(n) because assuming that the file size is n,
+# it will only iterate through the text once and split the text
+# into alphanumeric subsets.
 def tokenize(TextFilePath: str) -> List[str]:
     res = []
-    with open(TextFilePath, 'r') as file:
-        for line in file:
-            text = line.upper()  # Non case sensitive O(1)
+    with open(TextFilePath, 'r') as file:  # Ed disc mentioned to not use file.open, reading lines is more efficient
+        for line in file:  # All the line adds up to n, so a total of o(n) for all the lines
+            text = line.upper()  # case-sensitive
             # print(text)
-            res += re.findall(r'[a-zA-Z0-9]+', text)  # find all the text with 1 or more upper char, and #s O(n)
+            res += re.findall(r'[a-zA-Z0-9]+', text)  # find all the text with 1 or more upper char, and #s
             # print(res)
     return res
 
@@ -26,8 +27,8 @@ def compute_word_frequencies(input: List[str]) -> Dict[str, int]:
     return res
 
 
-# The run time complexity is o(nlogn) because it has a sort method for o(nlogn) and print method
-# that iterates through the list only once for o(n)
+# The run time complexity is o(nlogn) because it utilizes a built-in sort method for
+# a time complexity of o(nlogn) and then the program iterates through the list only once to print for a total of o(n)
 def print_frequencies(input: Dict[str, int]) -> None:
     res = sorted(input.items(), key=lambda x: (-x[1], x[0]))
     # print(res)
@@ -37,7 +38,7 @@ def print_frequencies(input: Dict[str, int]) -> None:
 
 
 if __name__ == "__main__":
-    # get file path from command line:
+    # get file path from the command line:
     if len(sys.argv) != 2:
         print("Please input one file path")
     else:
