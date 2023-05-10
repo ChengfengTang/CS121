@@ -1,9 +1,12 @@
 import os
 import json
+import shelve
+
 import nltk
 from nltk.stem import PorterStemmer
 from bs4 import BeautifulSoup
 from collections import defaultdict
+
 
 def readFiles(path):
     docs = {}
@@ -15,7 +18,9 @@ def readFiles(path):
                 with open(file_path, 'r') as f:
                     temp = json.load(f)
                     docs[temp['url']] = temp['content']
+            print("ok", len(docs))
     return docs
+
 
 def tokenize(content):
     soup = BeautifulSoup(content, 'html.parser')
@@ -28,27 +33,56 @@ def tokenize(content):
     tokens = [stemmer.stem(token) for token in tokens]
     return tokens
 
+
 def getIndex(documents):
     index = defaultdict(list)
+    counter = 1
+    doc_counter = 0
     for url, text in documents.items():
         tokens = tokenize(text)
-        # https://www.educative.io/answers/what-is-freqdist-in-python
         temp = nltk.FreqDist(tokens)
         for token, frequency in temp.items():
             index[token].append([url, frequency])
-    return index
+
+        doc_counter += 1
+        if doc_counter >= 1000:
+            saveIndex("inverted index" + str(counter) + ".json", index)
+            index.clear()
+            doc_counter = 0
+            counter += 1
+
+        print("ok ", counter, len(index))
+
+    if index:  # Save the last partial index if it exists
+        saveIndex("inverted index" + str(counter) + ".json", index)
+
+    mergeIndex(counter)
 
 
-def saveIndex(index):
+def mergeIndex(counter):
+    # Shelve doesn't hold data in memory.
+    with shelve.open('final index') as finalIndex:
+        for i in range(1, counter + 1):
+            with open("inverted index" + str(i) + ".json", 'r') as f:
+                temp = json.load(f)
+                for token, posting in temp.items():
+                    if token not in finalIndex:
+                        finalIndex[token] = posting
+                    else:
+                        finalIndex[token].extend(posting)
+
+
+def saveIndex(path, index):
     #  https://www.geeksforgeeks.org/json-dump-in-python/
-    with open("inverted index.json", 'w') as f:
+    with open(path, 'w') as f:
         json.dump(index, f)
+
 
 if __name__ == "__main__":
     path = "/Users/chengfeng/Desktop/ANALYST"
     docs = readFiles(path)
+    print("Indexing")
     index = getIndex(docs)
-    saveIndex(index)
-    print("# of documents: " , len(docs))
-    print("# of unique tokens: " , len(index))
-    print("Total size of index on disk: " , os.path.getsize("inverted_index.json") / 1024) # in KB
+    #   print("# of documents: " , len(docs))
+    # print("# of unique tokens: " , len(index))
+    # print("Total size of index on disk: " , os.path.getsize("inverted_index.json") / 1024) # in KB
