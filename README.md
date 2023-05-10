@@ -34,10 +34,16 @@ the index(es) files on disk. ☑️
 Extra Credit
 Extra percentual credit1 will be given for tasks that improve the retrieval and
 the user search - except for the GUI, you must code from scratch. For example:
+
 • Detect and eliminate duplicate pages. (1 pt for exact, 2 pts for near)
+
 • Add HITS and Page Rank to ranking. (1.5 pts HITS, 2.5 for PR)
+
 • Implement 2-gram and 3-gram indexing and use it in retrieval. (1 pt)
+
 • Enhance the index with word positions and use them for retrieval. (2 pts)
+
 • Index anchor words for the target pages. (1 pt).
+
 • Implement a Web or local GUI interface instead of using the console.
 (1 pt for the local GUI, 2 pts for a web GUI)
