@@ -20,10 +20,10 @@ stemming, but it is up to you to choose. ☑️
 • Important text: text in bold (b, strong), in headings (h1, h2, h3), and
 in titles should be treated as more important than the in other places.
 Verify which are the relevant HTML tags to select the important words
-Your indexer must off load the inverted
 
-• index hash map from main memory to a partial index on disk at least 3 times
-during index construction; those partial indexes should be merged in the end.
+
+• Your indexer must off load the inverted index hash map from main memory to a 
+partial index on disk at least 3 times during index construction; those partial indexes should be merged in the end.
 Optionally, after or during merging, they can also be split into separate index
 files with term ranges. Similarly, your search component must not load the
 entire inverted index in main memory. Instead, it must read the postings from
