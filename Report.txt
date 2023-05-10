@@ -1,0 +1,4 @@
+UID 61647935, 86351335, 13177934
+# of documents:  55393
+# of unique tokens:  2299230
+Total size of index on disk:  57883.8623046875
