@@ -135,7 +135,7 @@ def mergeIndex(counter, path):
                         finalIndex[token] = posting
                     else:
                         finalIndex[token].extend(posting)
-    print(path, "# of unique tokens ", len(finalIndex))
+        print(path, "# of unique tokens ", len(finalIndex))
     
 
 
