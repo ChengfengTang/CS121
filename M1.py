@@ -65,8 +65,8 @@ def getIndex(documents):
         idToURL[docCounter] = url  # map the url with its id
         tokens = tokenize(text)
         temp1 = nltk.FreqDist(tokens)
-        temp2 = nltk.FreqDist(map(','.join(), bigrams(tokens)))
-        temp3 = nltk.FreqDist(map(','.join(), trigrams(tokens)))
+        temp2 = nltk.FreqDist(map(','.join, bigrams(tokens)))
+        temp3 = nltk.FreqDist(map(','.join, trigrams(tokens)))
         # Indexing unigrams
         for token, frequency in temp1.items():
             positions = [i for i, t in enumerate(tokens) if t == token]  # Find positions of the token
@@ -126,7 +126,7 @@ def mergeIndex(counter, path):
         # Iterate over all the indices
         for i in range(1, counter + 1):
             # Open the index file
-            with open("inverted index" + str(i) + ".json", 'r') as f:
+            with open(path + " index" + str(i) + ".json", 'r') as f:
                 # Load the index as JSON
                 temp = json.load(f)
                 # Merge the index with the final index
@@ -154,6 +154,3 @@ if __name__ == "__main__":
     print("Indexing")
     # Get the index of the documents
     getIndex(docs)
-    #   print("# of documents: " , len(docs))
-    # print("# of unique tokens: " , len(index))
-    # print("Total size of index on disk: " , os.path.getsize("inverted_index.json") / 1024) # in KB

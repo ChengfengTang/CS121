@@ -7,7 +7,7 @@ Create an inverted index for the corpus with data structures designed by you.
 
 The inverted index is simply a map with the token
 
-• Its tf-idf score for that document
+• Its tf-idf score for that document ☑
 
 • Tokens: all alphanumeric sequences in the dataset. ☑️
 
@@ -39,9 +39,9 @@ the user search - except for the GUI, you must code from scratch. For example:
 
 • Add HITS and Page Rank to ranking. (1.5 pts HITS, 2.5 for PR)
 
-• Implement 2-gram and 3-gram indexing and use it in retrieval. (1 pt)
+• Implement 2-gram and 3-gram indexing and use it in retrieval. (1 pt) ☑
 
-• Enhance the index with word positions and use them for retrieval. (2 pts)
+• Enhance the index with word positions and use them for retrieval. (2 pts) ☑
 
 • Index anchor words for the target pages. (1 pt).
 
