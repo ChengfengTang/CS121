@@ -1,6 +1,7 @@
 # CS121
 CS121 Spring 2023
 
+
 Indexer
 
 Create an inverted index for the corpus with data structures designed by you.
@@ -28,6 +29,32 @@ Optionally, after or during merging, they can also be split into separate index
 files with term ranges. Similarly, your search component must not load the
 entire inverted index in main memory. Instead, it must read the postings from
 the index(es) files on disk. ☑️
+
+
+Search Engine
+
+The Search Engine is a powerful retrieval tool built upon the inverted index. The search engine utilizes a variety of techniques and features to ensure relevant and accurate results.
+
+Features
+Boolean Retrieval: The search engine is capable of handling boolean queries with AND operations. It retrieves documents that contain all the tokens specified in the query.
+
+TF-IDF Scoring: The search results are sorted based on their TF-IDF scores. This ensures that the most relevant documents, i.e., those with a higher frequency of the query tokens, are returned first.
+
+Positional Indexing: The search engine takes into account the positions of the query tokens in the documents. It not only checks if a document contains the tokens but also if the tokens appear in the same order as in the query. This enhances the accuracy of the search results.
+
+Bigrams and Trigrams: The search engine goes beyond unigram tokens and also includes bigrams and trigrams in its indexing and searching. This feature allows it to handle multi-word queries more effectively.
+
+Future Implementations
+Other Boolean Operators: In the future, the search engine will be enhanced to handle other boolean operations such as OR and NOT.
+
+Phrase Queries: The search engine will be updated to support phrase queries, where a document is considered a match only if it contains the exact phrase specified in the query.
+
+Relevance Feedback: The search engine will implement relevance feedback mechanisms, such as Rocchio's algorithm, to refine the search results based on user feedback.
+
+Query Expansion: The search engine will use techniques like synonyms and stemming to expand the query, thereby retrieving more relevant documents.
+
+Spell Check and Auto Suggestion: The search engine will provide spell check and auto-suggestion features to assist users in formulating their queries.
+
 
 
 
