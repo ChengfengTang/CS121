@@ -4,12 +4,14 @@ import json
 import shelve
 import heapq
 
+from simhash import Simhash
 from nltk.util import bigrams, trigrams
 import nltk
 from nltk.stem import PorterStemmer
 from bs4 import BeautifulSoup
 from collections import defaultdict
 
+fingerprints = []
 
 def readFiles(path):
     # Create a dictionary to store the documents
@@ -41,8 +43,16 @@ def tokenize(content):
     soup = BeautifulSoup(content, 'html.parser')
     # Get the text from the HTML
     text = soup.get_text()
-    # Tokenize the text
+
+    global fingerprints
+    # Tokenize the text only if there has not been a similar page
     tokens = nltk.word_tokenize(text)
+    temp = Simhash(tokens)
+    for fingerprint in fingerprints:
+        # Threshold is 2
+        if temp.distance(fingerprint) < 3:
+            return []
+    fingerprints.append(temp)
 
     # Create a PorterStemmer object
     stemmer = PorterStemmer()
@@ -88,7 +98,7 @@ def getIndex(documents):
                          ' '.join(t) == token]  # Find positions of the token
             idf = math.log(totalDocs / len(trigramIndex[token])) if trigramIndex[token] else 0  # Calculate IDF
             tf_idf = frequency * idf  # Calculate TF-IDF
-            trigramIndex[token].append([docCounter, frequency, positions, tf_idf])
+            trigramIndex[token].append([docCounter, frequency,positions, tf_idf])
 
         docCounter += 1
         if docCounter % (len(documents) // 3) == 0:  # Now we save every 1/3
@@ -136,7 +146,7 @@ def mergeIndex(counter, path):
                     else:
                         finalIndex[token].extend(posting)
         print(path, "# of unique tokens ", len(finalIndex))
-    
+
 
 
 def saveIndex(path, index):
@@ -148,7 +158,7 @@ def saveIndex(path, index):
 
 if __name__ == "__main__":
     # Define the path where the documents are stored
-    path = "/Users/chengfeng/Desktop/CS121/ANALYST"
+    path = "/Users/chengfeng/Desktop/CS121/DEV"
     # Read the files from the provided path
     docs = readFiles(path)
     print("Indexing")

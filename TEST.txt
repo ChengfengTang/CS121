@@ -1,3 +1,10 @@
+Test #1 May 17,
+Still need to implement
+bigrams & trigrams retrieval
+score model other than tf-idf (headings, anchor words ..etc)
+split files into 26 files a.db, b.db, c.db...
+
+
 cristina lopes
 machine learning
 ACM
