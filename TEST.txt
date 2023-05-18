@@ -3,9 +3,34 @@ Still need to implement
 bigrams & trigrams retrieval
 score model other than tf-idf (headings, anchor words ..etc)
 split files into 26 files a.db, b.db, c.db...
+similarity check
 
 
 cristina lopes
+Time taken: 9.002447128295898 ms 
+Top 5 results:
+URL: http://mondego.ics.uci.edu/, Score: 113.22469085008402
+URL: https://chenli.ics.uci.edu/publications/, Score: 18.848684748368907
+URL: http://flamingo.ics.uci.edu/spellchecker/, Score: 17.413600223079584
+URL: http://mondego.ics.uci.edu/projects/yelp/, Score: 16.21320524010153
+URL: http://mondego.ics.uci.edu/projects/SourcererCC/, Score: 16.076096026129125
+
 machine learning
+Time taken: 849.0614891052246 ms 
+Top 5 results:
+URL: https://cml.ics.uci.edu/category/aiml/page/2/#content, Score: 897.840679384886
+URL: https://cml.ics.uci.edu/category/aiml/page/2/, Score: 894.9199264545819
+URL: https://cml.ics.uci.edu/category/aiml/#content, Score: 809.0603447724404
+URL: https://cml.ics.uci.edu/category/aiml/, Score: 786.5170434932279
+URL: http://archive.ics.uci.edu/ml/support/Iris#632fe4095475bee152843a02969ade56a290db39, Score: 307.70814507308046
+
 ACM
+
 master of software engineering
+Time taken: 6509.785890579224 ms 
+Top 5 results:
+URL: https://redmiles.ics.uci.edu/publication/, Score: 865.106186863648
+URL: https://redmiles.ics.uci.edu/publication/#content, Score: 864.5896434069286
+URL: https://seal.ics.uci.edu/publications.html, Score: 588.8953825090525
+URL: http://archive.ics.uci.edu/ml/support/Mushroom#ccd4e75ad23df528a465f79fc83a186aa23ebebe, Score: 551.2618128562007
+URL: https://cradl.ics.uci.edu/news/page/2/, Score: 444.79355327255666
