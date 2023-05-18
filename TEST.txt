@@ -26,13 +26,15 @@ URL: http://archive.ics.uci.edu/ml/support/Iris#632fe4095475bee152843a02969ade56
 
 ACM
 Top 5 URLs for query 'ACM':
+Time taken: 3.9653778076171875 ms 
+Top 5 results:
 URL: https://nalini.ics.uci.edu/professional-activities/, Score: 197.81799993779802
 URL: https://nalini.ics.uci.edu/professional-activities/#content, Score: 197.7758776187673
 URL: https://redmiles.ics.uci.edu/publication/, Score: 155.53854974038032
 URL: https://redmiles.ics.uci.edu/publication/#content, Score: 155.38498466984967
 URL: http://hai.ics.uci.edu/publications.html, Score: 123.29188086430406
-master of software engineering
 
+master of software engineering
 Time taken: 6509.785890579224 ms 
 Top 5 results:
 URL: https://redmiles.ics.uci.edu/publication/, Score: 865.106186863648
