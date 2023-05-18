@@ -2,7 +2,6 @@ import math
 import os
 import json
 import shelve
-import heapq
 
 from simhash import Simhash
 from nltk.util import bigrams, trigrams
@@ -11,7 +10,13 @@ from nltk.stem import PorterStemmer
 from bs4 import BeautifulSoup
 from collections import defaultdict
 
+from nltk import re
+
 fingerprints = []
+pagesToAvoid = [r"https://cbcl\.ics\.uci\.edu/public_data/[\w\-./]+", # Useless texts with junk numbers
+                r"http://mondego\.ics\.uci\.edu/datasets/[\w\-./]+", # can't load
+                r"https://www\.ics\.uci\.edu/~kay/[\w\-./]+"] # too large
+
 
 def readFiles(path):
     # Create a dictionary to store the documents
@@ -43,17 +48,17 @@ def tokenize(content):
     soup = BeautifulSoup(content, 'html.parser')
     # Get the text from the HTML
     text = soup.get_text()
-
+    tokens = nltk.word_tokenize(text)
+    """
     global fingerprints
     # Tokenize the text only if there has not been a similar page
-    tokens = nltk.word_tokenize(text)
     temp = Simhash(tokens)
     for fingerprint in fingerprints:
         # Threshold is 2
         if temp.distance(fingerprint) < 3:
             return []
     fingerprints.append(temp)
-
+    """
     # Create a PorterStemmer object
     stemmer = PorterStemmer()
     # Stem tokens
@@ -64,14 +69,18 @@ def tokenize(content):
 
 def getIndex(documents):
     unigramIndex = defaultdict(list)
-    bigramIndex = defaultdict(list)
-    trigramIndex = defaultdict(list)
+    #bigramIndex = defaultdict(list)
+    #trigramIndex = defaultdict(list)
     idToURL = {}  # dictionary to map IDs to URLs for retrieval
     counter = 1
     docCounter = 1  # document counter will now serve as ID
     totalDocs = len(documents)  # keeps track of the total number of documents
 
     for url, text in documents.items():
+        if any(re.search(pattern, url) for pattern in pagesToAvoid):
+            print(text)
+            continue
+        print(url)
         idToURL[docCounter] = url  # map the url with its id
         tokens = tokenize(text)
         temp1 = nltk.FreqDist(tokens)
@@ -83,7 +92,7 @@ def getIndex(documents):
             idf = math.log(totalDocs / len(unigramIndex[token])) if unigramIndex[token] else 0  # Calculate IDF
             tf_idf = frequency * idf  # Calculate TF-IDF
             unigramIndex[token].append([docCounter, frequency, positions, tf_idf])
-
+        """
         # Indexing bigrams
         for token, frequency in temp2.items():
             positions = [i for i, t in enumerate(bigrams(tokens)) if
@@ -99,24 +108,24 @@ def getIndex(documents):
             idf = math.log(totalDocs / len(trigramIndex[token])) if trigramIndex[token] else 0  # Calculate IDF
             tf_idf = frequency * idf  # Calculate TF-IDF
             trigramIndex[token].append([docCounter, frequency,positions, tf_idf])
-
+        """
         docCounter += 1
         if docCounter % (len(documents) // 3) == 0:  # Now we save every 1/3
             saveIndex("unigram index" + str(counter) + ".json", unigramIndex)
-            saveIndex("bigram index" + str(counter) + ".json", bigramIndex)
-            saveIndex("trigram index" + str(counter) + ".json", trigramIndex)
+            #saveIndex("bigram index" + str(counter) + ".json", bigramIndex)
+            #saveIndex("trigram index" + str(counter) + ".json", trigramIndex)
             unigramIndex.clear()
-            bigramIndex.clear()
-            trigramIndex.clear()
+            #bigramIndex.clear()
+            #trigramIndex.clear()
             counter += 1
-        print("ok ", counter, len(unigramIndex), len(bigramIndex), len(trigramIndex))
+        print("ok ", docCounter, counter, len(unigramIndex))#, len(bigramIndex), len(trigramIndex))
 
     if unigramIndex:  # Save the last partial index if it exists
         saveIndex("unigram index" + str(counter) + ".json", unigramIndex)
-    if bigramIndex:
-        saveIndex("bigram index" + str(counter) + ".json", bigramIndex)
-    if trigramIndex:
-        saveIndex("trigram index" + str(counter) + ".json", trigramIndex)
+    #if bigramIndex:
+    #    saveIndex("bigram index" + str(counter) + ".json", bigramIndex)
+    #if trigramIndex:
+    #    saveIndex("trigram index" + str(counter) + ".json", trigramIndex)
 
     # Also save the ID-URL mappings
     with open('id to URL.json', 'w') as f:
@@ -124,8 +133,8 @@ def getIndex(documents):
 
     # Merge each type of index separately
     mergeIndex(counter, 'unigram')
-    mergeIndex(counter, 'bigram')
-    mergeIndex(counter, 'trigram')
+    #mergeIndex(counter, 'bigram')
+    #mergeIndex(counter, 'trigram')
 
 
 
@@ -157,10 +166,14 @@ def saveIndex(path, index):
 
 
 if __name__ == "__main__":
+    nltk.download('punkt')
     # Define the path where the documents are stored
-    path = "/Users/chengfeng/Desktop/CS121/DEV"
+    path = "\\Users\\tommy\\Desktop\\CS121-main\\DEV"
     # Read the files from the provided path
     docs = readFiles(path)
     print("Indexing")
     # Get the index of the documents
     getIndex(docs)
+
+
+
