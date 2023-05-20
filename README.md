@@ -15,6 +15,9 @@ the frequently occurring ones. ☑️
 • Stemming: use stemming for better textual matches. Suggestion: Porter
 stemming, but it is up to you to choose. ☑️
 
+• Store final inverted index in 28 files. 26 Characters + numeric + else ☑️
+
+• Common Words: Store common words ☑️
 
 • Your indexer must off load the inverted index hash map from main memory to a 
 partial index on disk at least 3 times during index construction; those partial indexes should be merged in the end.
@@ -32,18 +35,19 @@ Verify which are the relevant HTML tags to select the important words
 
 
 # Search Engine
-
 The Search Engine is a powerful retrieval tool built upon the inverted index. The search engine utilizes a variety of techniques and features to ensure relevant and accurate results.
 
 ## Features
-Boolean Retrieval: The search engine is capable of handling boolean queries with AND operations. It retrieves documents that contain all the tokens specified in the query.
+• Common Words: use common words in cache for faster retrieval. ☑️
 
-TF-IDF Scoring: The search results are sorted based on their TF-IDF scores. This ensures that the most relevant documents, i.e., those with a higher frequency of the query tokens, are returned first.
+• Boolean Retrieval: The search engine is capable of handling boolean queries with AND operations. It retrieves documents that contain all the tokens specified in the query. ☑️
 
-Positional Indexing: The search engine takes into account the positions of the query tokens in the documents. It not only checks if a document contains the tokens but also if the tokens appear in the same order as in the query. This enhances the accuracy of the search results.
+• TF-IDF Scoring: The search results are sorted based on their TF-IDF scores. This ensures that the most relevant documents, i.e., those with a higher frequency of the query tokens, are returned first. ☑️
+
+• Positional Indexing: The search engine takes into account the positions of the query tokens in the documents. It not only checks if a document contains the tokens but also if the tokens appear in the same order as in the query. This enhances the accuracy of the search results.
 
 ## To-do
-Bigrams and Trigrams: The search engine goes beyond unigram tokens and also includes bigrams and trigrams in its indexing and searching. This feature allows it to handle multi-word queries more effectively.
+• Bigrams and Trigrams: The search engine goes beyond unigram tokens and also includes bigrams and trigrams in its indexing and searching. This feature allows it to handle multi-word queries more effectively.
 
 
 
