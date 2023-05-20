@@ -2,7 +2,10 @@ import math
 import os
 import json
 import shelve
-
+import string
+import shelve
+import json
+import re
 from simhash import Simhash
 from nltk.util import bigrams, trigrams
 import nltk
@@ -13,9 +16,10 @@ from collections import defaultdict
 from nltk import re
 
 fingerprints = []
-pagesToAvoid = [r"https://cbcl\.ics\.uci\.edu/public_data/[\w\-./]+", # Useless texts with junk numbers
-                r"http://mondego\.ics\.uci\.edu/datasets/[\w\-./]+", # can't load
-                r"https://www\.ics\.uci\.edu/~kay/[\w\-./]+"] # too large
+pagesToAvoid = [r"https://cbcl\.ics\.uci\.edu/public_data/[\w\-./]+",  # Useless texts with junk numbers
+                r"http://mondego\.ics\.uci\.edu/datasets/[\w\-./]+",  # can't load
+                r"https://www\.ics\.uci\.edu/~kay/[\w\-./]+"]  # too large
+alpha = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
 
 
 def readFiles(path):
@@ -69,8 +73,8 @@ def tokenize(content):
 
 def getIndex(documents):
     unigramIndex = defaultdict(list)
-    #bigramIndex = defaultdict(list)
-    #trigramIndex = defaultdict(list)
+    # bigramIndex = defaultdict(list)
+    # trigramIndex = defaultdict(list)
     idToURL = {}  # dictionary to map IDs to URLs for retrieval
     counter = 1
     docCounter = 1  # document counter will now serve as ID
@@ -112,19 +116,19 @@ def getIndex(documents):
         docCounter += 1
         if docCounter % (len(documents) // 3) == 0:  # Now we save every 1/3
             saveIndex("unigram index" + str(counter) + ".json", unigramIndex)
-            #saveIndex("bigram index" + str(counter) + ".json", bigramIndex)
-            #saveIndex("trigram index" + str(counter) + ".json", trigramIndex)
+            # saveIndex("bigram index" + str(counter) + ".json", bigramIndex)
+            # saveIndex("trigram index" + str(counter) + ".json", trigramIndex)
             unigramIndex.clear()
-            #bigramIndex.clear()
-            #trigramIndex.clear()
+            # bigramIndex.clear()
+            # trigramIndex.clear()
             counter += 1
-        print("ok ", docCounter, counter, len(unigramIndex))#, len(bigramIndex), len(trigramIndex))
+        print("ok ", docCounter, counter, len(unigramIndex))  # , len(bigramIndex), len(trigramIndex))
 
     if unigramIndex:  # Save the last partial index if it exists
         saveIndex("unigram index" + str(counter) + ".json", unigramIndex)
-    #if bigramIndex:
+    # if bigramIndex:
     #    saveIndex("bigram index" + str(counter) + ".json", bigramIndex)
-    #if trigramIndex:
+    # if trigramIndex:
     #    saveIndex("trigram index" + str(counter) + ".json", trigramIndex)
 
     # Also save the ID-URL mappings
@@ -133,29 +137,61 @@ def getIndex(documents):
 
     # Merge each type of index separately
     mergeIndex(counter, 'unigram')
-    #mergeIndex(counter, 'bigram')
-    #mergeIndex(counter, 'trigram')
-
+    # mergeIndex(counter, 'bigram')
+    # mergeIndex(counter, 'trigram')
 
 
 def mergeIndex(counter, path):
     print("Merging " + path)
-    # Use shelve to store the final index on disk
-    with shelve.open('final ' + path) as finalIndex:
-        # Iterate over all the indices
-        for i in range(1, counter + 1):
-            # Open the index file
-            with open(path + " index" + str(i) + ".json", 'r') as f:
-                # Load the index as JSON
-                temp = json.load(f)
-                # Merge the index with the final index
-                for token, posting in temp.items():
-                    if token not in finalIndex:
-                        finalIndex[token] = posting
-                    else:
-                        finalIndex[token].extend(posting)
-        print(path, "# of unique tokens ", len(finalIndex))
 
+    common = {}
+    finalIndexes = {name: {} for name in (list(string.ascii_lowercase) + ['number', 'non_alphanumeric'])}
+
+    # Iterate over all the indices
+    for i in range(1, counter + 1):
+        # Open the index file
+        with open(path + " index" + str(i) + ".json", 'r') as f:
+            # Load the index as JSON
+            temp = json.load(f)
+            # Merge the index with the final index
+            for token, posting in temp.items():
+                sum = 0
+                # Caching the popular terms in memory
+                for x in posting:
+                    sum += x[1]
+                    if sum > 50:  # 50 has 10k, 80 has 7.6k, 100 has 1k
+                        common[token] = posting
+                        break
+
+                if token[0] in alpha:
+                    # Assign it to one of the alphabetic dictionaries
+                    index_dict = finalIndexes[token[0]]
+                elif token[0].isdigit():
+                    # Assign it to the numeric dictionary
+                    index_dict = finalIndexes['number']
+                else:
+                    # Assign it to the non-alphanumeric dictionary
+                    index_dict = finalIndexes['non_alphanumeric']
+
+                if token not in index_dict:
+                    index_dict[token] = posting
+                else:
+                    index_dict[token].extend(posting)
+
+    # Print total tokens in each dictionary
+    for filename, index_dict in finalIndexes.items():
+        print(filename, "# of unique tokens ", len(index_dict))
+
+    print("Cached common words: ", len(common.keys()))
+
+    # Save dictionaries to separate JSON files
+    for filename, index_dict in finalIndexes.items():
+        with open('final ' + path + ' ' + filename + '.json', 'w') as f:
+            json.dump(index_dict, f)
+
+    # Write common words to file
+    with open('common.json', 'w') as cw:
+        json.dump(common, cw)
 
 
 def saveIndex(path, index):
@@ -166,6 +202,7 @@ def saveIndex(path, index):
 
 
 if __name__ == "__main__":
+    """
     nltk.download('punkt')
     # Define the path where the documents are stored
     path = "\\Users\\tommy\\Desktop\\CS121-main\\DEV"
@@ -174,6 +211,5 @@ if __name__ == "__main__":
     print("Indexing")
     # Get the index of the documents
     getIndex(docs)
-
-
-
+    """
+    mergeIndex(3, 'unigram')

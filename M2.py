@@ -7,14 +7,16 @@ import nltk
 from nltk.stem import PorterStemmer
 
 
+alpha = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+
 class SearchEngine:
     def __init__(self):
-        self.unigramIndex = shelve.open('final unigram')
-        self.bigramIndex = shelve.open('final bigram')
-        self.trigramIndex = shelve.open('final trigram')
+        self.unigramIndex = ""
         # Files that map IDs to URLs
         with open('id to URL.json', 'r') as f:
             self.id_to_url = json.load(f)
+        with open('common.json', 'r') as f:
+            self.common = json.load(f)
         self.stemmer = PorterStemmer()
 
     def processQuery(self, query):
@@ -25,31 +27,39 @@ class SearchEngine:
         return tokens
 
     def search(self, query):
+
         tokens = self.processQuery(query)
+
         results = defaultdict(float)
 
         docsWithQuery = set()
-        for i in range(len(tokens) - 1):
-            # Check if each pair of consecutive tokens appear next to each other in the documents
-            if tokens[i] in self.unigramIndex and tokens[i + 1] in self.unigramIndex:
-                postings1 = self.unigramIndex[tokens[i]]
-                postings2 = self.unigramIndex[tokens[i + 1]]
-                for doc_id1, freq1, pos1, tf_idf1 in postings1:
-                    for doc_id2, freq2, pos2, tf_idf2 in postings2:
-                        if doc_id1 == doc_id2 and any(j - i == 1 for i, j in zip(pos1, pos2)):
-                            # If the same document contains both tokens next to each other
-                            docsWithQuery.add(doc_id1)
 
+        print(docsWithQuery)
         for token in tokens:
             # For each token
-            if token in self.unigramIndex:
-                # Only if it exists in the unigram index
-                postings = self.unigramIndex[token]
-                # Get all the postings of that token
-                # Doc id, frequency, position, tf-idf score
+            if token in self.common:
+                postings = self.common[token]
                 for doc_id, freq, pos, tf_idf in postings:
-                    if doc_id in docsWithQuery:
+                    #if doc_id in docsWithQuery:
                         results[doc_id] += tf_idf
+            else:
+                if token[0] in alpha:
+                    with open('final unigram ' + token[0] + ".json", 'r') as f:
+                        self.unigramIndex = json.load(f)
+                elif token[0].isdigit():
+                    with open("final unigram number.json", 'r') as f:
+                        self.unigramIndex = json.load(f)
+                else:
+                    with open("final unigram non_alphanumeric.json", 'r') as f:
+                        self.unigramIndex = json.load(f)
+                if token in self.unigramIndex:
+                    # Only if it exists in the unigram index
+                    postings = self.unigramIndex[token]
+                    # Get all the postings of that token
+                    # Doc id, frequency, position, tf-idf score
+                    for doc_id, freq, pos, tf_idf in postings:
+                        #if doc_id in docsWithQuery:
+                            results[doc_id] += tf_idf
         # Sort results by tf-idf score in descending order
         results = sorted(results.items(), key=lambda x: x[1], reverse=True)
         # Return the top 5 results
@@ -60,7 +70,7 @@ class SearchEngine:
 
 if __name__ == "__main__":
     SE = SearchEngine()
-    queries = ["cristina lopes", "machine learning", "ACM", "master of software engineering" ] 
+    queries = ["cristina lopes", "machine learning", "ACM", "master of software engineering"]
     for query in queries:
         results = SE.search(query)
         print(f"Top 5 URLs for query '{query}':")

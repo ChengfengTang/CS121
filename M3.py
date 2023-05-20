@@ -24,11 +24,8 @@ class SearchApp:
         self.results.pack()
 
     def index(self):
-        if not (os.path.exists('final unigram.db') and os.path.exists('final bigram.db') and os.path.exists(
-                'final trigram.db')):
-            path = "/Users/chengfeng/Desktop/CS121/DEV"
-            docs = readFiles(path)
-            getIndex(docs)
+        if not (os.path.exists('common.json')):
+            mergeIndex(3, 'unigram')
             messagebox.showinfo('Info', 'Indexing completed')
 
         else:
