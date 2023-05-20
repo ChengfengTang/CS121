@@ -42,3 +42,49 @@ URL: https://redmiles.ics.uci.edu/publication/#content, Score: 864.5896434069286
 URL: https://seal.ics.uci.edu/publications.html, Score: 588.8953825090525
 URL: http://archive.ics.uci.edu/ml/support/Mushroom#ccd4e75ad23df528a465f79fc83a186aa23ebebe, Score: 551.2618128562007
 URL: https://cradl.ics.uci.edu/news/page/2/, Score: 444.79355327255666
+
+-------------------------------------------------------------------------------------------------------------------------
+
+Test #2 May 19,
+Implemented: Common Words & 28 Index Files
+cristina lopes
+Time taken: 1 ms 
+Top 5 results:
+URL: https://www.ics.uci.edu/~hsajnani/, Score: 414.9160946650958
+URL: https://www.ics.uci.edu/community/news/features/view_feature?id=67, Score: 126.23691614141447
+URL: https://www.informatics.uci.edu/close-to-the-trenches/#content, Score: 99.39958982736957
+URL: https://www.informatics.uci.edu/close-to-the-trenches/, Score: 97.49198598705179
+URL: https://www.ics.uci.edu/community/news/articles/view_article?id=85, Score: 94.81585759764144
+
+
+machine learning
+Time taken: 9.003639221191406 ms 
+Top 5 results:
+URL: https://www.ics.uci.edu/~pattis/ICS-33/lectures/overview/lecture.html, Score: 433.1622295694289
+URL: https://www.ics.uci.edu/~dechter/courses/ics-295/fall-2019/, Score: 409.95640495571246
+URL: https://www.ics.uci.edu/~dechter/courses/ics-295/winter-2018/, Score: 407.3184052827772
+URL: https://www.ics.uci.edu/~pattis/ICS-21/lectures/overview/lecture.html, Score: 393.2302650869544
+URL: https://www.ics.uci.edu/~kibler/#Publications, Score: 376.59148697539
+ACM
+Top 5 URLs for query 'ACM':
+Time taken: 0.9977817535400391 ms 
+Top 5 results:
+URL: https://www.ics.uci.edu/~eppstein/bibs/eppstein.html, Score: 725.9898046071435
+URL: https://www.ics.uci.edu/~eppstein/pubs/all.html, Score: 565.234347269566
+URL: https://www.ics.uci.edu/~mjcarey/MJCarey_Publications.html, Score: 418.30533135538457
+URL: https://www.ics.uci.edu/~eppstein/pubs/geom-all.html, Score: 379.0358879659815
+URL: https://www.ics.uci.edu/~gmark/Home_page/Publications.html, Score: 294.09566604686233
+
+
+master of software engineering
+Time taken: 5.015134811401367 ms 
+Top 5 results:
+URL: https://www.ics.uci.edu/~dan/class/267P/datasets/calgary/book1, Score: 10822.845450180246
+URL: https://www.ics.uci.edu/~gbowker/classification/, Score: 7223.5829793435005
+URL: https://www.ics.uci.edu/~eppstein/bibs/kpath.bib, Score: 6780.356953807164
+URL: https://www.ics.uci.edu/~wscacchi/Papers/Vintage/Software_Productivity.html, Score: 3766.159068171062
+URL: https://www.ics.uci.edu/~dan/class/267P/datasets/calgary/news, Score: 3209.333691497861
+
+Summary: Way faster result, inaccuracy exists
+
+--------------------------------------------------------------------------------------------------------------------------
