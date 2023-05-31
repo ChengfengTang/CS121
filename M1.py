@@ -53,32 +53,45 @@ def tokenize(content):
     # Get the text from the HTML
     text = soup.get_text()
     tokens = nltk.word_tokenize(text)
-    """
-    global fingerprints
-    # Tokenize the text only if there has not been a similar page
-    temp = Simhash(tokens)
-    for fingerprint in fingerprints:
-        # Threshold is 2
-        if temp.distance(fingerprint) < 3:
-            return []
-    fingerprints.append(temp)
-    """
+
+    # Get important words
+    important_words = get_important_words(soup)
+
     # Create a PorterStemmer object
     stemmer = PorterStemmer()
     # Stem tokens
     tokens = [stemmer.stem(token) for token in tokens if token.isalnum()]
-    # Return the tokens
-    return tokens
+    # Stem important words
+    important_words = [stemmer.stem(word) for word in important_words if word.isalnum()]
 
+    # Return the tokens and important words
+    return tokens, important_words
+
+def get_important_words(soup):
+    important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'b', 'strong']
+    important_words = []
+
+    for tag in important_tags:
+        elements = soup.findAll(tag)
+        for element in elements:
+            words = nltk.word_tokenize(element.get_text())
+            important_words.extend(words)
+
+    return important_words
+
+
+from simhash import Simhash
 
 def getIndex(documents):
     unigramIndex = defaultdict(list)
-    # bigramIndex = defaultdict(list)
-    # trigramIndex = defaultdict(list)
     idToURL = {}  # dictionary to map IDs to URLs for retrieval
+    importantWordsIndex = {}  # dictionary to map IDs to important words in the document
     counter = 1
     docCounter = 1  # document counter will now serve as ID
     totalDocs = len(documents)  # keeps track of the total number of documents
+
+    simhashes = {}  # dictionary to store Simhashes
+    token_sets = {}  # dictionary to store sets of tokens
 
     for url, text in documents.items():
         if any(re.search(pattern, url) for pattern in pagesToAvoid):
@@ -86,59 +99,60 @@ def getIndex(documents):
             continue
         print(url)
         idToURL[docCounter] = url  # map the url with its id
-        tokens = tokenize(text)
+        tokens, important_words = tokenize(text)
+        importantWordsIndex[docCounter] = important_words  # map the id with its important words
         temp1 = nltk.FreqDist(tokens)
-        temp2 = nltk.FreqDist(map(','.join, bigrams(tokens)))
-        temp3 = nltk.FreqDist(map(','.join, trigrams(tokens)))
+
+        # Compute and store the Simhash for this document
+        simhashes[docCounter] = Simhash(tokens)
+        # Store the set of tokens for this document
+        token_sets[docCounter] = set(tokens)
+
         # Indexing unigrams
         for token, frequency in temp1.items():
             positions = [i for i, t in enumerate(tokens) if t == token]  # Find positions of the token
             idf = math.log(totalDocs / len(unigramIndex[token])) if unigramIndex[token] else 0  # Calculate IDF
             tf_idf = frequency * idf  # Calculate TF-IDF
             unigramIndex[token].append([docCounter, frequency, positions, tf_idf])
-        """
-        # Indexing bigrams
-        for token, frequency in temp2.items():
-            positions = [i for i, t in enumerate(bigrams(tokens)) if
-                         ' '.join(t) == token]  # Find positions of the token
-            idf = math.log(totalDocs / len(bigramIndex[token])) if bigramIndex[token] else 0  # Calculate IDF
-            tf_idf = frequency * idf  # Calculate TF-IDF
-            bigramIndex[token].append([docCounter, frequency, positions, tf_idf])
 
-        # Indexing trigrams
-        for token, frequency in temp3.items():
-            positions = [i for i, t in enumerate(trigrams(tokens)) if
-                         ' '.join(t) == token]  # Find positions of the token
-            idf = math.log(totalDocs / len(trigramIndex[token])) if trigramIndex[token] else 0  # Calculate IDF
-            tf_idf = frequency * idf  # Calculate TF-IDF
-            trigramIndex[token].append([docCounter, frequency,positions, tf_idf])
-        """
         docCounter += 1
         if docCounter % (len(documents) // 3) == 0:  # Now we save every 1/3
             saveIndex("unigram index" + str(counter) + ".json", unigramIndex)
-            # saveIndex("bigram index" + str(counter) + ".json", bigramIndex)
-            # saveIndex("trigram index" + str(counter) + ".json", trigramIndex)
             unigramIndex.clear()
-            # bigramIndex.clear()
-            # trigramIndex.clear()
             counter += 1
-        print("ok ", docCounter, counter, len(unigramIndex))  # , len(bigramIndex), len(trigramIndex))
+        print("ok ", docCounter, counter, len(unigramIndex))
 
     if unigramIndex:  # Save the last partial index if it exists
         saveIndex("unigram index" + str(counter) + ".json", unigramIndex)
-    # if bigramIndex:
-    #    saveIndex("bigram index" + str(counter) + ".json", bigramIndex)
-    # if trigramIndex:
-    #    saveIndex("trigram index" + str(counter) + ".json", trigramIndex)
 
     # Also save the ID-URL mappings
     with open('id to URL.json', 'w') as f:
         json.dump(idToURL, f)
 
+    # Save the important words dictionary
+    with open('important_words.json', 'w') as f:
+        json.dump(importantWordsIndex, f)
+
+    # Iterate over all pairs of documents
+    for id1 in range(1, docCounter):
+        for id2 in range(id1 + 1, docCounter):
+            # Compute the Hamming distance between the Simhashes of these two documents
+            distance = simhashes[id1].distance(simhashes[id2])
+
+            # If the distance is small, the documents are similar
+            if distance < 2:
+                print(f"Documents {id1} and {id2} are similar (Simhash distance = {distance})")
+
+            # Compute the Jaccard similarity between the sets of tokens for these two documents
+            jaccard_similarity = len(token_sets[id1] & token_sets[id2]) / len(token_sets[id1] | token_sets[id2])
+
+            # If the Jaccard similarity is close to 1, the documents are very similar or identical
+            if jaccard_similarity > 0.9:  # 0.9 is just an example threshold
+                print(f"Documents {id1} and {id2} are identical or very similar (Jaccard similarity = {jaccard_similarity})")
+
     # Merge each type of index separately
     mergeIndex(counter, 'unigram')
-    # mergeIndex(counter, 'bigram')
-    # mergeIndex(counter, 'trigram')
+
 
 
 def mergeIndex(counter, path):
@@ -202,14 +216,15 @@ def saveIndex(path, index):
 
 
 if __name__ == "__main__":
-    """
+
     nltk.download('punkt')
     # Define the path where the documents are stored
-    path = "\\Users\\tommy\\Desktop\\CS121-main\\DEV"
+
+    path = "\\Users\\tommy\\Desktop\\CS121-main\\ANALYST"
     # Read the files from the provided path
     docs = readFiles(path)
     print("Indexing")
     # Get the index of the documents
     getIndex(docs)
-    """
-    mergeIndex(3, 'unigram')
+
+    #mergeIndex(3, 'unigram')

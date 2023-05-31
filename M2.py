@@ -1,3 +1,7 @@
+import math
+
+import math
+
 import shelve
 import json
 import heapq
@@ -17,6 +21,8 @@ class SearchEngine:
             self.id_to_url = json.load(f)
         with open('common.json', 'r') as f:
             self.common = json.load(f)
+        with open('important_words.json', 'r') as f:
+            self.important_words = json.load(f)
         self.stemmer = PorterStemmer()
 
     def processQuery(self, query):
@@ -33,15 +39,35 @@ class SearchEngine:
         results = defaultdict(float)
 
         docsWithQuery = set()
-
+        allPos = defaultdict(list)
         print(docsWithQuery)
         for token in tokens:
+
             # For each token
             if token in self.common:
+
                 postings = self.common[token]
+                #print("common: ", token, postings)
                 for doc_id, freq, pos, tf_idf in postings:
-                    #if doc_id in docsWithQuery:
+                    # if token is an important word in this document, increase its weight
+                    if token in self.important_words[str(doc_id)]:
+                        tf_idf *= 1 + math.log(freq)
+
+                        # for every position that is within the query len of another position, modify the score
+                        # a naive way to check if two words are next to each other, prone to spamming
+                        counter = 0
+                        for x in pos:
+                            for i in range(x - len(tokens), x + len(tokens) + 1):  # creates range of numbers
+                                if i in allPos[doc_id]:  # checks if each number in range is in allPos
+                                    counter += 1
+                            if counter != 0:
+                                tf_idf *= 1 + math.log(counter)
+                        if counter != 0:
+                            tf_idf = 1 + math.log(counter)
+
                         results[doc_id] += tf_idf
+                    allPos[doc_id].extend(pos)
+
             else:
                 if token[0] in alpha:
                     with open('final unigram ' + token[0] + ".json", 'r') as f:
@@ -52,19 +78,37 @@ class SearchEngine:
                 else:
                     with open("final unigram non_alphanumeric.json", 'r') as f:
                         self.unigramIndex = json.load(f)
+                #print(token)
                 if token in self.unigramIndex:
+
                     # Only if it exists in the unigram index
                     postings = self.unigramIndex[token]
+
+                    #print(token, postings)
                     # Get all the postings of that token
                     # Doc id, frequency, position, tf-idf score
                     for doc_id, freq, pos, tf_idf in postings:
-                        #if doc_id in docsWithQuery:
+                            # if token is an important word in this document, increase its weight
+                            if token in self.important_words[str(doc_id)]:
+                                tf_idf *= 1 + math.log(freq)
+                            counter = 0
+                            for x in pos:
+                                for i in range(x - len(tokens), x + len(tokens) + 1):  # creates range of numbers
+                                    if i in allPos[doc_id]:  # checks if each number in range is in allPos
+                                        counter += 1
+                                if counter != 0:
+                                    tf_idf *= 1 + math.log(counter)
+                            if counter != 0:
+                                tf_idf *= 1 + math.log(counter)
                             results[doc_id] += tf_idf
+                            allPos[doc_id].extend(pos)
+        print(allPos)
         # Sort results by tf-idf score in descending order
         results = sorted(results.items(), key=lambda x: x[1], reverse=True)
         # Return the top 5 results
-        N = 5
-        topN = results[:N]
+        #N = 5
+        topN = results#[:N]
+        print("Total of " , len(results))
         return [(self.id_to_url[str(doc_id)], score) for doc_id, score in topN]
 
 

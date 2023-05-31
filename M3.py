@@ -2,7 +2,7 @@ import os
 import time
 import tkinter as tk
 from tkinter import messagebox
-from M1 import getIndex, readFiles
+from M1 import getIndex, readFiles, mergeIndex
 from M2 import SearchEngine
 
 
@@ -25,6 +25,12 @@ class SearchApp:
 
     def index(self):
         if not (os.path.exists('common.json')):
+            path = "\\Users\\tommy\\Desktop\\CS121-main\\ANALYST"
+            # Read the files from the provided path
+            docs = readFiles(path)
+            print("Indexing")
+            # Get the index of the documents
+            getIndex(docs)
             mergeIndex(3, 'unigram')
             messagebox.showinfo('Info', 'Indexing completed')
 
