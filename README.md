@@ -1,60 +1,59 @@
-# CS121
-CS121 Spring 2023
+# CS121 Spring 2023 
+
+# How to operate the application
+## Prerequisites
+Ensure that you have installed all necessary packages including nltk, bs4, simhash, and tkinter.
+```python
+pip install nltk bs4 simhash tkinter
+```
+Next, download the NLTK tokenizer by running the following Python command:
+```python
+nltk.download('punkt')
+```
+Finally, you must have your dataset (a collection of files you want to index) stored on your local machine)
+
+## Start the program
+```python
+python3 M3.py
+```
+
+## Indexer
+Input the absolute path to your dataset folder into the inputfield and click the "Index" button in the GUI. The program will read the files in the provided path, create the index, and store it on disk. If the index already exists, the program will notify you. Indexing may take a while depending on the size of the dataset. The indexing status will be displayed in the console.
+
+## Search
+With the application running, enter your query in the text field in the GUI.
+
+Click the "Search" button.
+
+The search engine will retrieve and display the top five most relevant results in the GUI interface based on your query. The results are ranked using the TF-IDF score. The time taken for the search will also be displayed.
 
 
-# Indexer
+# Features
+## Indexer
+The Indexer reads a collection of documents, processes them, and creates an inverted index. The features of the indexer include:
 
-## Features
-• Its tf-idf score for that document ☑️
+• Creation of tokens for all alphanumeric sequences in the dataset.
 
-• Tokens: all alphanumeric sequences in the dataset. ☑️
+• No stop words are removed during indexing.
 
-• Stop words: do not use stopping while indexing, i.e. use all words, even
-the frequently occurring ones. ☑️
+• Porter stemming is applied to tokens for better textual matches.
 
-• Stemming: use stemming for better textual matches. Suggestion: Porter
-stemming, but it is up to you to choose. ☑️
+• TF-IDF scores are calculated for each document.
 
+• Index offloading: The inverted index hashmap is offloaded from main memory to a partial index on disk at least 3 times during index construction. These partial indexes are merged in the end.
 
-• Your indexer must off load the inverted index hash map from main memory to a 
-partial index on disk at least 3 times during index construction; those partial indexes should be merged in the end.
-Optionally, after or during merging, they can also be split into separate index
-files with term ranges. Similarly, your search component must not load the
-entire inverted index in main memory. Instead, it must read the postings from
-the index(es) files on disk. ☑️
+Important text (in bold, in headings, and in titles) is treated as more important.
 
-• Common Words
+• Words that appear more than 50 times are treated as common words, stored under "common.json".
 
-• Important text: text in bold (b, strong), in headings (h1, h2, h3), and
-in titles should be treated as more important than the in other places.
-Verify which are the relevant HTML tags to select the important words ☑️
+## Search Engine
+• The Search Engine utilizes the inverted index to retrieve relevant documents based on a query. The features of the search engine include:
 
-## To-do
+• Boolean Retrieval: The search engine can handle boolean queries with AND operations.
 
-• Better merging methods that don't require holding memory
+• TF-IDF Scoring: The search results are sorted based on their TF-IDF scores.
 
-
-# Search Engine
-
-The Search Engine is a powerful retrieval tool built upon the inverted index. The search engine utilizes a variety of techniques and features to ensure relevant and accurate results.
-
-## Features
-Boolean Retrieval: The search engine is capable of handling boolean queries with AND operations. It retrieves documents that contain all the tokens specified in the query.
-
-TF-IDF Scoring: The search results are sorted based on their TF-IDF scores. This ensures that the most relevant documents, i.e., those with a higher frequency of the query tokens, are returned first.
-
-Positional Indexing: The search engine takes into account the positions of the query tokens in the documents. It not only checks if a document contains the tokens but also if the tokens appear in the same order as in the query. This enhances the accuracy of the search results.
-
-## To-do
-Bigrams and Trigrams: The search engine goes beyond unigram tokens and also includes bigrams and trigrams in its indexing and searching. This feature allows it to handle multi-word queries more effectively.
-
-
-
-Other Boolean Operators: In the future, the search engine will be enhanced to handle other boolean operations such as OR and NOT.
-
-Query Expansion: The search engine will use techniques like synonyms and stemming to expand the query, thereby retrieving more relevant documents.
-
-Spell Check and Auto Suggestion: The search engine will provide spell check and auto-suggestion features to assist users in formulating their queries.
+• Positional Indexing: The search engine takes into account the positions of the query tokens in the documents.
 
 
 # Extra Credit
