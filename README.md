@@ -18,7 +18,7 @@ python3 M3.py
 ```
 
 ## Indexer
-Input the absolute path to your dataset folder into the inputfield and click the "Index" button in the GUI. The program will read the files in the provided path, create the index, and store it on disk. If the index already exists, the program will notify you. Indexing may take a while depending on the size of the dataset. The indexing status will be displayed in the console.
+Click the "Index" button in the GUI to select a directory. The program will then read the files in the provided path, create the index, and store it on disk. If the index already exists, the program will notify you. Indexing may take a while depending on the size of the dataset. The indexing status will be displayed in the console.
 
 ## Search
 With the application running, enter your query in the text field in the GUI.
