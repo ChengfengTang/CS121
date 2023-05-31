@@ -15,98 +15,125 @@ from collections import defaultdict
 
 from nltk import re
 
+# Download the Punkt Tokenizer Models, this is used for tokenizing text.
+nltk.download('punkt')
+
 fingerprints = []
+# List of pages to avoid
 pagesToAvoid = [r"https://cbcl\.ics\.uci\.edu/public_data/[\w\-./]+",  # Useless texts with junk numbers
                 r"http://mondego\.ics\.uci\.edu/datasets/[\w\-./]+",  # can't load
                 r"https://www\.ics\.uci\.edu/~kay/[\w\-./]+"]  # too large
-alpha = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+
+alpha = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
+         "w", "x", "y", "z"]
 
 
+# Function to read files from a given path
 def readFiles(path):
-    # Create a dictionary to store the documents
+    # Initialize an empty dictionary to store documents
     docs = {}
+
     # Iterate over all the files in the provided directory
     for domain in os.listdir(path):
-        # Join the path and domain name to create the full path
-        domainFolder = os.path.join(path, domain)
-        # Check if the path is a directory
-        if os.path.isdir(domainFolder):
-            # Iterate over all the files in the directory
-            for page in os.listdir(domainFolder):
+        domainFolder = os.path.join(path, domain)  # Join the path and domain name to create the full path
+        if os.path.isdir(domainFolder):  # If the path is a directory
+
+            for page in os.listdir(domainFolder):  # Iterate over all the files in the directory
                 # Join the domain folder path and page name to create the full file path
                 file_path = os.path.join(domainFolder, page)
-                # Open the file
-                with open(file_path, 'r') as f:
-                    # Load the file content as JSON
-                    temp = json.load(f)
-                    # Add the file content to the dictionary
-                    docs[temp['url']] = temp['content']
-            # Print the number of documents
-            print("ok", len(docs))
-    # Return the documents
-    return docs
+                with open(file_path, 'r') as f:  # Open the file
+                    temp = json.load(f)  # Load the file content as JSON
+                    docs[temp['url']] = temp['content']  # Store the file content to the dictionary
+            print("ok", len(docs))  # Print the number of documents
+    return docs  # Output the documents
 
 
 def tokenize(content):
     # Parse the HTML content
     soup = BeautifulSoup(content, 'html.parser')
-    # Get the text from the HTML
+    # Extract text from the HTML
     text = soup.get_text()
+    # Tokenize the text
     tokens = nltk.word_tokenize(text)
-
     # Get important words
     important_words = get_important_words(soup)
-
     # Create a PorterStemmer object
     stemmer = PorterStemmer()
     # Stem tokens
     tokens = [stemmer.stem(token) for token in tokens if token.isalnum()]
     # Stem important words
     important_words = [stemmer.stem(word) for word in important_words if word.isalnum()]
-
     # Return the tokens and important words
     return tokens, important_words
 
-def get_important_words(soup):
-    important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'b', 'strong']
-    important_words = []
 
+def get_important_words(soup):
+    # Define a list of important HTML tags
+    important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'b', 'strong']
+    # Initialize an empty list to store important words
+    important_words = []
+    # For each important tag
     for tag in important_tags:
+        # Find all the elements with that tag
         elements = soup.findAll(tag)
         for element in elements:
+            # Tokenize the text of the element
             words = nltk.word_tokenize(element.get_text())
+            # Add the tokens to the list of important words
             important_words.extend(words)
 
     return important_words
 
 
-from simhash import Simhash
-
+# Function to generate the index of the documents
 def getIndex(documents):
     unigramIndex = defaultdict(list)
     idToURL = {}  # dictionary to map IDs to URLs for retrieval
-    importantWordsIndex = {}  # dictionary to map IDs to important words in the document
+    importantWordsIndex = {}  # Dictionary to map IDs to important words in the document
     counter = 1
-    docCounter = 1  # document counter will now serve as ID
-    totalDocs = len(documents)  # keeps track of the total number of documents
+    docCounter = 1  # Document counter will now serve as ID
+    totalDocs = len(documents)  # Total number of documents
 
-    simhashes = {}  # dictionary to store Simhashes
-    token_sets = {}  # dictionary to store sets of tokens
+    simhashes = {}  # Dictionary to store Simhashes
+    tokenSets = {}  # Dictionary to store sets of tokens
 
     for url, text in documents.items():
+        # Avoid pages using regular expression
         if any(re.search(pattern, url) for pattern in pagesToAvoid):
             print(text)
             continue
         print(url)
-        idToURL[docCounter] = url  # map the url with its id
+        idToURL[docCounter] = url  # Map the URL with its ID
         tokens, important_words = tokenize(text)
-        importantWordsIndex[docCounter] = important_words  # map the id with its important words
+        importantWordsIndex[docCounter] = important_words  #  Map the ID with its important words
         temp1 = nltk.FreqDist(tokens)
 
         # Compute and store the Simhash for this document
-        simhashes[docCounter] = Simhash(tokens)
+        tempSimHash = Simhash(tokens)
+        for ids in range(1, docCounter):
+
+            # Compute the Hamming distance between the Simhashes of these two documents
+            distance = simhashes[ids].distance(tempSimHash)
+
+            # If the distance is small, the documents are similar
+            if distance < 2:
+                print(f"Documents {ids} and {docCounter} are similar (Simhash distance = {distance})")
+                break
+                continue
+
+            # Compute the Jaccard similarity between the sets of tokens for these two documents
+            jaccardSimilarity = len(tokenSets[ids] & set(tokens)) / len(tokenSets[ids] | set(tokens))
+
+            # If the Jaccard similarity is close to 1, the documents are very similar or identical
+            if jaccardSimilarity > 0.9:  # 0.9 is just an example threshold
+                print(
+                    f"Documents {ids} and {docCounter} are identical or very similar (Jaccard similarity = {jaccardSimilarity})")
+                break
+                continue
+
+        simhashes[docCounter] = tempSimHash
         # Store the set of tokens for this document
-        token_sets[docCounter] = set(tokens)
+        tokenSets[docCounter] = set(tokens)
 
         # Indexing unigrams
         for token, frequency in temp1.items():
@@ -133,28 +160,10 @@ def getIndex(documents):
     with open('important_words.json', 'w') as f:
         json.dump(importantWordsIndex, f)
 
-    # Iterate over all pairs of documents
-    for id1 in range(1, docCounter):
-        for id2 in range(id1 + 1, docCounter):
-            # Compute the Hamming distance between the Simhashes of these two documents
-            distance = simhashes[id1].distance(simhashes[id2])
-
-            # If the distance is small, the documents are similar
-            if distance < 2:
-                print(f"Documents {id1} and {id2} are similar (Simhash distance = {distance})")
-
-            # Compute the Jaccard similarity between the sets of tokens for these two documents
-            jaccard_similarity = len(token_sets[id1] & token_sets[id2]) / len(token_sets[id1] | token_sets[id2])
-
-            # If the Jaccard similarity is close to 1, the documents are very similar or identical
-            if jaccard_similarity > 0.9:  # 0.9 is just an example threshold
-                print(f"Documents {id1} and {id2} are identical or very similar (Jaccard similarity = {jaccard_similarity})")
-
     # Merge each type of index separately
     mergeIndex(counter, 'unigram')
 
-
-
+#  Function to merge indices
 def mergeIndex(counter, path):
     print("Merging " + path)
 
@@ -207,24 +216,22 @@ def mergeIndex(counter, path):
     with open('common.json', 'w') as cw:
         json.dump(common, cw)
 
-
+# Function to save the index to a file
 def saveIndex(path, index):
     # Open a file at the given path
     with open(path, 'w') as f:
         # Dump the index into the file as JSON
         json.dump(dict(sorted(index.items())), f)
 
-
+# Test function
 if __name__ == "__main__":
-
-    nltk.download('punkt')
     # Define the path where the documents are stored
 
-    path = "\\Users\\tommy\\Desktop\\CS121-main\\ANALYST"
+    path = "\\Users\\tommy\\Desktop\\CS121-main\\DEV"
     # Read the files from the provided path
     docs = readFiles(path)
     print("Indexing")
     # Get the index of the documents
     getIndex(docs)
 
-    #mergeIndex(3, 'unigram')
+    # mergeIndex(3, 'unigram')
