@@ -23,10 +23,13 @@ files with term ranges. Similarly, your search component must not load the
 entire inverted index in main memory. Instead, it must read the postings from
 the index(es) files on disk. ☑️
 
-## To-do
+• Common Words
+
 • Important text: text in bold (b, strong), in headings (h1, h2, h3), and
 in titles should be treated as more important than the in other places.
-Verify which are the relevant HTML tags to select the important words
+Verify which are the relevant HTML tags to select the important words ☑️
+
+## To-do
 
 • Better merging methods that don't require holding memory
 
@@ -62,11 +65,11 @@ the user search - except for the GUI, you must code from scratch. For example:
 
 • Add HITS and Page Rank to ranking. (1.5 pts HITS, 2.5 for PR) 
 
-• Implement 2-gram and 3-gram indexing and use it in retrieval. (1 pt) ☑️
+• Implement 2-gram and 3-gram indexing and use it in retrieval. (1 pt) 
 
 • Enhance the index with word positions and use them for retrieval. (2 pts) ☑️
 
-• Index anchor words for the target pages. (1 pt).
+• Index anchor words for the target pages. (1 pt). ☑️
 
 • Implement a Web or local GUI interface instead of using the console.
 (1 pt for the local GUI, 2 pts for a web GUI) ☑️
