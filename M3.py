@@ -5,6 +5,7 @@ from tkinter import filedialog, messagebox
 from M1 import getIndex, readFiles, mergeIndex
 from M2 import SearchEngine
 
+
 # Define the main SearchApp class
 class SearchApp:
     def __init__(self, root):
@@ -39,19 +40,22 @@ class SearchApp:
                 mergeIndex(3, 'unigram')
                 # Inform the user that indexing is complete
                 messagebox.showinfo('Info', 'Indexing completed')
-            else: # If common.json already exists, notify the user
+            else:  # If common.json already exists, notify the user
                 messagebox.showinfo('Info', 'Inverted Index already exists, no need to index again.')
             # Initialize the SearchEngine
+
             self.searchEngine = SearchEngine()
-        else: # If no directory was selected, notify the user
+
+        else:  # If no directory was selected, notify the user
             messagebox.showinfo('Info', 'No directory selected')
 
     # Define the search function
     def search(self):
-        # If the SearchEngine has not been initialized, ask the user to index first
-        if self.searchEngine is None:
-            messagebox.showinfo('Info', 'Please index first')
-            return
+
+            # If the SearchEngine has not been initialized, ask the user to index first
+            if self.searchEngine is None:
+                messagebox.showinfo('Info', 'Please index first')
+                return
 
             # Get the query from the search field
             query = self.searchField.get()

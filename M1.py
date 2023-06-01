@@ -94,8 +94,8 @@ def getIndex(documents):
     docCounter = 1  # Document counter will now serve as ID
     totalDocs = len(documents)  # Total number of documents
 
-    simhashes = {}  # Dictionary to store Simhashes
-    tokenSets = {}  # Dictionary to store sets of tokens
+    #simhashes = {}  # Dictionary to store Simhashes
+    #tokenSets = {}  # Dictionary to store sets of tokens
 
     for url, text in documents.items():
         # Avoid pages using regular expression
@@ -107,7 +107,7 @@ def getIndex(documents):
         tokens, important_words = tokenize(text)
         importantWordsIndex[docCounter] = important_words  #  Map the ID with its important words
         temp1 = nltk.FreqDist(tokens)
-
+        """
         # Compute and store the Simhash for this document
         tempSimHash = Simhash(tokens)
         for ids in range(1, docCounter):
@@ -130,10 +130,11 @@ def getIndex(documents):
                     f"Documents {ids} and {docCounter} are identical or very similar (Jaccard similarity = {jaccardSimilarity})")
                 break
                 continue
-
+        
         simhashes[docCounter] = tempSimHash
         # Store the set of tokens for this document
         tokenSets[docCounter] = set(tokens)
+        """
 
         # Indexing unigrams
         for token, frequency in temp1.items():
